@@ -3,7 +3,6 @@ package com.example.user_frontend;
 import android.app.AlertDialog;
 import android.content.Intent;
 import android.os.Bundle;
-import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -58,20 +57,16 @@ public class MainActivity extends AppCompatActivity {
     
     private void setupClickListeners() {
         btnAddHike.setOnClickListener(v -> {
-            Intent intent = new Intent(MainActivity.this, AddEditHikeActivity.class);
-            startActivity(intent);
+            startActivity(new Intent(this, AddEditHikeActivity.class));
         });
         
         btnViewHikes.setOnClickListener(v -> {
-            Intent intent = new Intent(MainActivity.this, HikeListActivity.class);
-            startActivity(intent);
+            startActivity(new Intent(this, HikeListActivity.class));
         });
         
         btnSearch.setOnClickListener(v -> {
-            Intent intent = new Intent(MainActivity.this, SearchActivity.class);
-            startActivity(intent);
+            startActivity(new Intent(this, SearchActivity.class));
         });
-        
         
         btnDeleteAll.setOnClickListener(v -> confirmDeleteAll());
     }
@@ -80,8 +75,7 @@ public class MainActivity extends AppCompatActivity {
         int count = hikeDAO.getAllHikes().size();
         tvHikeCount.setText(getString(R.string.hikes_count, count));
     }
-    
-    
+
     private void confirmDeleteAll() {
         new AlertDialog.Builder(this)
             .setTitle(R.string.btn_delete_all)

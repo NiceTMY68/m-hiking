@@ -128,17 +128,9 @@ public class AddEditHikeActivity extends AppCompatActivity {
         etEstimatedDuration.setText(currentHike.getEstimatedDuration());
         etWeatherConditions.setText(currentHike.getWeatherConditions());
         
-        // Set difficulty
         String difficulty = currentHike.getDifficulty();
         if (difficulty != null) {
-            int position = 1; // default moderate
-            switch (difficulty.toLowerCase()) {
-                case "easy": position = 0; break;
-                case "moderate": position = 1; break;
-                case "hard": position = 2; break;
-                case "expert": position = 3; break;
-            }
-            spinnerDifficulty.setSelection(position);
+            spinnerDifficulty.setSelection(getDifficultyPosition(difficulty));
         }
     }
     
@@ -218,52 +210,44 @@ public class AddEditHikeActivity extends AppCompatActivity {
     }
     
     private void saveHike() {
-        // Get values from inputs
-        String name = etHikeName.getText().toString().trim();
-        String location = etLocation.getText().toString().trim();
-        Date date = selectedDate.getTime();
-        boolean parkingAvailable = cbParkingAvailable.isChecked();
-        float length = Float.parseFloat(etLength.getText().toString().trim());
+        currentHike.setName(etHikeName.getText().toString().trim());
+        currentHike.setLocation(etLocation.getText().toString().trim());
+        currentHike.setDate(selectedDate.getTime());
+        currentHike.setParkingAvailable(cbParkingAvailable.isChecked());
+        currentHike.setLength(Float.parseFloat(etLength.getText().toString().trim()));
+        currentHike.setDifficulty(getDifficultyFromString(spinnerDifficulty.getSelectedItem().toString()));
+        currentHike.setDescription(etDescription.getText().toString().trim());
+        currentHike.setEstimatedDuration(etEstimatedDuration.getText().toString().trim());
+        currentHike.setWeatherConditions(etWeatherConditions.getText().toString().trim());
         
-        String difficultyText = spinnerDifficulty.getSelectedItem().toString();
-        String difficulty = "moderate"; // default
-        if (difficultyText.equals(getString(R.string.difficulty_easy))) difficulty = "easy";
-        else if (difficultyText.equals(getString(R.string.difficulty_moderate))) difficulty = "moderate";
-        else if (difficultyText.equals(getString(R.string.difficulty_hard))) difficulty = "hard";
-        else if (difficultyText.equals(getString(R.string.difficulty_expert))) difficulty = "expert";
-        
-        String description = etDescription.getText().toString().trim();
-        String estimatedDuration = etEstimatedDuration.getText().toString().trim();
-        String weatherConditions = etWeatherConditions.getText().toString().trim();
-        
-        // Update hike object
-        currentHike.setName(name);
-        currentHike.setLocation(location);
-        currentHike.setDate(date);
-        currentHike.setParkingAvailable(parkingAvailable);
-        currentHike.setLength(length);
-        currentHike.setDifficulty(difficulty);
-        currentHike.setDescription(description);
-        currentHike.setEstimatedDuration(estimatedDuration);
-        currentHike.setWeatherConditions(weatherConditions);
-        
-        // Save to database
-        long result;
-        if (isEditMode) {
-            result = hikeDAO.updateHike(currentHike);
-            Toast.makeText(this, R.string.msg_hike_updated, Toast.LENGTH_SHORT).show();
-        } else {
-            result = hikeDAO.insertHike(currentHike);
-            Toast.makeText(this, R.string.msg_hike_saved, Toast.LENGTH_SHORT).show();
-        }
+        long result = isEditMode ? hikeDAO.updateHike(currentHike) : hikeDAO.insertHike(currentHike);
         
         if (result != -1) {
+            Toast.makeText(this, isEditMode ? R.string.msg_hike_updated : R.string.msg_hike_saved, Toast.LENGTH_SHORT).show();
             finish();
         } else {
             Toast.makeText(this, "Error saving hike", Toast.LENGTH_SHORT).show();
         }
     }
     
+    private String getDifficultyFromString(String difficultyText) {
+        if (difficultyText.equals(getString(R.string.difficulty_easy))) return "easy";
+        if (difficultyText.equals(getString(R.string.difficulty_moderate))) return "moderate";
+        if (difficultyText.equals(getString(R.string.difficulty_hard))) return "hard";
+        if (difficultyText.equals(getString(R.string.difficulty_expert))) return "expert";
+        return "moderate";
+    }
+
+    private int getDifficultyPosition(String difficulty) {
+        switch (difficulty.toLowerCase()) {
+            case "easy": return 0;
+            case "moderate": return 1;
+            case "hard": return 2;
+            case "expert": return 3;
+            default: return 1;
+        }
+    }
+
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         if (item.getItemId() == android.R.id.home) {

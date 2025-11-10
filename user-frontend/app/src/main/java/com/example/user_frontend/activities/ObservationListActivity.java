@@ -38,7 +38,6 @@ public class ObservationListActivity extends AppCompatActivity implements Observ
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_observation_list);
         
-        // Get hike info from intent
         hikeId = getIntent().getStringExtra("HIKE_ID");
         hikeName = getIntent().getStringExtra("HIKE_NAME");
         
@@ -48,13 +47,9 @@ public class ObservationListActivity extends AppCompatActivity implements Observ
             return;
         }
         
-        // Initialize DAO
         observationDAO = new ObservationDAO(this);
-        
-        // Initialize views
         initViews();
         
-        // Set up toolbar
         setSupportActionBar(toolbar);
         if (getSupportActionBar() != null) {
             getSupportActionBar().setDisplayHomeAsUpEnabled(true);
@@ -63,17 +58,14 @@ public class ObservationListActivity extends AppCompatActivity implements Observ
             }
         }
         
-        // Set up RecyclerView
         setupRecyclerView();
         
-        // Set up FAB
         fabAddObservation.setOnClickListener(v -> {
             Intent intent = new Intent(this, AddEditObservationActivity.class);
             intent.putExtra("HIKE_ID", hikeId);
             startActivity(intent);
         });
         
-        // Load observations
         loadObservations();
     }
     

@@ -34,22 +34,15 @@ public class HikeListActivity extends AppCompatActivity implements HikeAdapter.O
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_hike_list);
         
-        // Initialize DAO
         hikeDAO = new HikeDAO(this);
-        
-        // Initialize views
         initViews();
         
-        // Set up toolbar
         setSupportActionBar(toolbar);
         if (getSupportActionBar() != null) {
             getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         }
         
-        // Set up RecyclerView
         setupRecyclerView();
-        
-        // Load hikes
         loadHikes();
     }
     

@@ -196,8 +196,7 @@ public class HikeDAO {
         db.close();
         return hikes;
     }
-    
-    
+
     private ContentValues getContentValues(Hike hike) {
         ContentValues values = new ContentValues();
         values.put(DatabaseHelper.COLUMN_HIKE_ID, hike.getId());

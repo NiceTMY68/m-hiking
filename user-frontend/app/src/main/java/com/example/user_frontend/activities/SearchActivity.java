@@ -221,12 +221,12 @@ public class SearchActivity extends AppCompatActivity implements HikeAdapter.OnH
     }
     
     private void clearAdvancedFields() {
-        etAdvancedName.setText("");
-        etAdvancedLocation.setText("");
-        etMinLength.setText("");
-        etMaxLength.setText("");
-        etStartDate.setText("");
-        etEndDate.setText("");
+        etAdvancedName.getText().clear();
+        etAdvancedLocation.getText().clear();
+        etMinLength.getText().clear();
+        etMaxLength.getText().clear();
+        etStartDate.getText().clear();
+        etEndDate.getText().clear();
         hideResults();
     }
     
@@ -269,7 +269,6 @@ public class SearchActivity extends AppCompatActivity implements HikeAdapter.OnH
     public void onDeleteClick(Hike hike) {
         hikeDAO.deleteHike(hike.getId());
         Toast.makeText(this, R.string.msg_hike_deleted, Toast.LENGTH_SHORT).show();
-        // Re-perform last search
         if (switchAdvanced.isChecked()) {
             performAdvancedSearch();
         } else {

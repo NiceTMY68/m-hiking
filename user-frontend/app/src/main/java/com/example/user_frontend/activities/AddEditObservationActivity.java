@@ -44,7 +44,6 @@ public class AddEditObservationActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_add_edit_observation);
         
-        // Get hike ID from intent
         hikeId = getIntent().getStringExtra("HIKE_ID");
         
         if (hikeId == null) {
@@ -53,32 +52,21 @@ public class AddEditObservationActivity extends AppCompatActivity {
             return;
         }
         
-        // Initialize DAO
         observationDAO = new ObservationDAO(this);
-        
-        // Initialize date/time formatter
         dateTimeFormat = new SimpleDateFormat("dd/MM/yyyy HH:mm", Locale.getDefault());
         selectedTime = Calendar.getInstance();
         
-        // Initialize views
         initViews();
         
-        // Set up toolbar
         setSupportActionBar(toolbar);
         if (getSupportActionBar() != null) {
             getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         }
         
-        // Set up spinner
         setupCategorySpinner();
-        
-        // Check if editing existing observation
         checkEditMode();
-        
-        // Set up click listeners
         setupClickListeners();
         
-        // Set default time
         if (!isEditMode) {
             etTime.setText(dateTimeFormat.format(selectedTime.getTime()));
         }
@@ -139,18 +127,9 @@ public class AddEditObservationActivity extends AppCompatActivity {
         
         etComments.setText(currentObservation.getComments());
         
-        // Set category
         String category = currentObservation.getCategory();
         if (category != null) {
-            int position = 4; // default other
-            switch (category.toLowerCase()) {
-                case "wildlife": position = 0; break;
-                case "weather": position = 1; break;
-                case "trail_conditions": position = 2; break;
-                case "scenery": position = 3; break;
-                case "other": position = 4; break;
-            }
-            spinnerCategory.setSelection(position);
+            spinnerCategory.setSelection(getCategoryPosition(category));
         }
     }
     
@@ -167,11 +146,9 @@ public class AddEditObservationActivity extends AppCompatActivity {
     }
     
     private void showDateTimePicker() {
-        // First show date picker
         DatePickerDialog datePickerDialog = new DatePickerDialog(
             this,
             (view, year, month, dayOfMonth) -> {
-                // Then show time picker
                 TimePickerDialog timePickerDialog = new TimePickerDialog(
                     this,
                     (timeView, hourOfDay, minute) -> {
@@ -203,29 +180,12 @@ public class AddEditObservationActivity extends AppCompatActivity {
     }
     
     private void saveObservation() {
-        String observation = etObservation.getText().toString().trim();
-        Date time = selectedTime.getTime();
-        String comments = etComments.getText().toString().trim();
+        currentObservation.setObservation(etObservation.getText().toString().trim());
+        currentObservation.setTime(selectedTime.getTime());
+        currentObservation.setComments(etComments.getText().toString().trim());
+        currentObservation.setCategory(getCategoryFromString(spinnerCategory.getSelectedItem().toString()));
         
-        String categoryText = spinnerCategory.getSelectedItem().toString();
-        String category = "other"; // default
-        if (categoryText.equals(getString(R.string.category_wildlife))) category = "wildlife";
-        else if (categoryText.equals(getString(R.string.category_weather))) category = "weather";
-        else if (categoryText.equals(getString(R.string.category_trail_conditions))) category = "trail_conditions";
-        else if (categoryText.equals(getString(R.string.category_scenery))) category = "scenery";
-        else if (categoryText.equals(getString(R.string.category_other))) category = "other";
-        
-        currentObservation.setObservation(observation);
-        currentObservation.setTime(time);
-        currentObservation.setComments(comments);
-        currentObservation.setCategory(category);
-        
-        long result;
-        if (isEditMode) {
-            result = observationDAO.updateObservation(currentObservation);
-        } else {
-            result = observationDAO.insertObservation(currentObservation);
-        }
+        long result = isEditMode ? observationDAO.updateObservation(currentObservation) : observationDAO.insertObservation(currentObservation);
         
         if (result != -1) {
             Toast.makeText(this, R.string.msg_observation_saved, Toast.LENGTH_SHORT).show();
@@ -235,6 +195,24 @@ public class AddEditObservationActivity extends AppCompatActivity {
         }
     }
     
+    private String getCategoryFromString(String categoryText) {
+        if (categoryText.equals(getString(R.string.category_wildlife))) return "wildlife";
+        if (categoryText.equals(getString(R.string.category_weather))) return "weather";
+        if (categoryText.equals(getString(R.string.category_trail_conditions))) return "trail_conditions";
+        if (categoryText.equals(getString(R.string.category_scenery))) return "scenery";
+        return "other";
+    }
+
+    private int getCategoryPosition(String category) {
+        switch (category.toLowerCase()) {
+            case "wildlife": return 0;
+            case "weather": return 1;
+            case "trail_conditions": return 2;
+            case "scenery": return 3;
+            default: return 4;
+        }
+    }
+
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         if (item.getItemId() == android.R.id.home) {
